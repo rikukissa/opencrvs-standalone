@@ -19,15 +19,11 @@ app.use(async (req, res, next) => {
     return next
   }
 
-
   try {
     await Promise.all([
-      axios.get('http://localhost:9200'),
-      axios.get('http://localhost:4040/ping'),
-      axios.get('http://localhost:2021/ping'),
-      axios.get('http://localhost:7070/ping?service=gateway'),
       axios.get('http://localhost:3040/ping'),
-      axios.get('http://localhost:3536'),
+      axios.get('http://localhost:3020'),
+      axios.get('http://localhost:3000')
     ])
     stackReady = true;
     next()

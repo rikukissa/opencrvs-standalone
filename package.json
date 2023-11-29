@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:dev": "docker build -t opencrvs-standalone:latest .",
+    "start": "docker run -p 7000:7000 opencrvs-standalone:latest ."
   },
   "author": "",
   "license": "ISC",
