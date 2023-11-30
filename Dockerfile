@@ -21,6 +21,8 @@ RUN git clone --depth=1 https://github.com/jembi/hearth.git /hearth
 RUN git clone --depth=1 https://github.com/jembi/openhim-core-js.git /openhim
 RUN git clone --depth=1 https://github.com/opencrvs/opencrvs-farajaland.git /country-config
 
+RUN cd /app && npm i
+
 # This is a little risky optimisation
 RUN cd /opencrvs-core && yarn
 RUN cd /country-config && yarn
