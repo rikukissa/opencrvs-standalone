@@ -48,10 +48,10 @@ fi
 
 echo "DATABASE_PREFIX is set to '$DATABASE_PREFIX'"
 
-export HEARTH_URL=$MONGODB_ADDRESS/$DATABASE_PREFIX-hearth
-export OPENHIM_URL=$MONGODB_ADDRESS/$DATABASE_PREFIX-openhim
+export HEARTH_DATABASE_URL=$MONGODB_ADDRESS/$DATABASE_PREFIX-hearth
+export OPENHIM_DATABASE_URL=$MONGODB_ADDRESS/$DATABASE_PREFIX-openhim
 
 # Create new influx database
-curl -i -XPOST http://$INFLUXDB_ADDRESS/query --data-urlencode "q=CREATE DATABASE $DATABASE_PREFIX"
+curl -i -XPOST http://$INFLUXDB_ADDRESS/query --data-urlencode "q=CREATE DATABASE \"$DATABASE_PREFIX-ocrvs\""
 
 /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
