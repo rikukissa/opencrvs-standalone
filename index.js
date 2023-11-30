@@ -149,12 +149,12 @@ app.use(
     res.setHeader('Content-Type', 'application/javascript')
     res.send(`
   window.config = {
-    API_GATEWAY_URL: 'http://${req.headers.host}/gateway/',
-    CONFIG_API_URL: 'http://${req.headers.host}/config/',
-    AUTH_URL: 'http://${req.headers.host}/gateway/auth/',
-    LOGIN_URL: 'http://${req.headers.host}/login',
+    API_GATEWAY_URL: 'https://${req.headers.host}/gateway/',
+    CONFIG_API_URL: 'https://${req.headers.host}/config/',
+    AUTH_URL: 'https://${req.headers.host}/gateway/auth/',
+    LOGIN_URL: 'https://${req.headers.host}/login',
     MINIO_BUCKET: 'ocrvs',
-    COUNTRY_CONFIG_URL: 'http://${req.headers.host}/countryconfig',
+    COUNTRY_CONFIG_URL: 'https://${req.headers.host}/countryconfig',
     COUNTRY: 'FAR',
     AVAILABLE_LANGUAGES_SELECT: 'en:English,fr:Français',
     LANGUAGES: 'en,fr',
@@ -172,14 +172,14 @@ app.use(
     res.setHeader('Content-Type', 'application/javascript')
     res.send(`
   window.config = {
-    CONFIG_API_URL: 'http://${req.headers.host}/config/',
-    AUTH_API_URL: 'http://${req.headers.host}/gateway/auth/',
-    CLIENT_APP_URL: 'http://${req.headers.host}',
+    CONFIG_API_URL: 'https://${req.headers.host}/config/',
+    AUTH_API_URL: 'https://${req.headers.host}/gateway/auth/',
+    CLIENT_APP_URL: 'https://${req.headers.host}',
     // Country code in uppercase ALPHA-3 format
     COUNTRY: 'FAR',
     LANGUAGES: 'en,fr',
     AVAILABLE_LANGUAGES_SELECT: 'en:English,fr:Français',
-    COUNTRY_CONFIG_URL: 'http://${req.headers.host}/countryconfig',
+    COUNTRY_CONFIG_URL: 'https://${req.headers.host}/countryconfig',
     SENTRY: '',
     LOGROCKET: ''
   }`)
