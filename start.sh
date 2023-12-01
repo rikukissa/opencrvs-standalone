@@ -1,6 +1,7 @@
 
 export HOST='0.0.0.0'
 export NODE_ENV=development
+export QA_ENV=true
 export LOG_LEVEL="info"
 export LANGUAGES="en,fr"
 export MINIO_URL="$MINIO_EXTERNAL_ADDRESS"
@@ -42,6 +43,8 @@ yarn start
 
 # Change all hostnames to localhost as we do not use extra hosts in this setup
 node -e "require('mongodb').MongoClient.connect(process.env.OPENHIM_MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(client => client.db().collection('channels').updateMany({ 'routes.host': { \$exists: true } }, { \$set: { 'routes.$[].host': 'localhost' } }).then(result => { console.log('Updated ' + result.modifiedCount + ' documents'); client.close(); })).catch(err => console.error(err));"
+
+export NODE_ENV=production
 
 cd /opencrvs-core
 
