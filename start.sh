@@ -30,7 +30,6 @@ cd /opencrvs-core/packages/login && VITE_APP_VERSION=$VERSION NODE_OPTIONS=--max
 
 cd /opencrvs-core && yarn dev:secrets:gen
 
-
 export HEARTH_MONGO_URL=$MONGODB_ADMIN_ADDRESS/$DATABASE_PREFIX-hearth?authSource=admin
 export APPLICATION_CONFIG_MONGO_URL=$MONGODB_ADMIN_ADDRESS/$DATABASE_PREFIX-application-config?authSource=admin
 export OPENHIM_MONGO_URL=$MONGODB_ADMIN_ADDRESS/$DATABASE_PREFIX-openhim?authSource=admin
@@ -54,8 +53,8 @@ export ES_HOST=$ELASTICSEARCH_ADMIN_ADDRESS
 cd /opencrvs-core/packages/migration
 yarn start
 
-# Change all hostnames to localhost as we do not use extra hosts in this setup
-node -e "require('mongodb').MongoClient.connect(process.env.OPENHIM_MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(client => client.db().collection('channels').updateMany({ 'routes.host': { \$exists: true } }, { \$set: { 'routes.$[].host': 'localhost' } }).then(result => { console.log('Updated ' + result.modifiedCount + ' documents'); client.close(); })).catch(err => console.error(err));"
+# Change all hostnames to as we want request to go to localhost:4040 instead of search:4040
+node -e 'require("mongodb").MongoClient.connect(process.env.OPENHIM_MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(client => client.db().collection("channels").updateMany({ "routes.host": { $exists: true } }, { $set: { "routes.$[].host": "localhost" } }).then(result => { console.log("Updated " + result.modifiedCount + " documents"); client.close(); })).catch(err => console.error(err));'
 
 export NODE_ENV=production
 
