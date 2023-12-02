@@ -12,6 +12,7 @@ docker run \
 -v ./init.sh:/init.sh \
 -v ./start.sh:/app/start.sh \
 -v ./index.js:/app/index.js \
+-v ./index.html:/app/index.html \
 -v ./start-country-config.sh:/app/start-country-config.sh \
 -v ./prefix-output.sh:/app/prefix-output.sh \
 -v ./supervisord.conf:/etc/supervisor/conf.d/supervisord.conf \

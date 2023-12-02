@@ -43,85 +43,11 @@ app.use(async (req, res, next) => {
     stackReady = true;
     next()
   } catch (error) {
-    res.status(503).send(`
-    <html>
-      <head>
-        <title>Stack not ready</title>
-        <meta http-equiv="refresh" content="5" >
-        <style>
-        body {
-          font-family: 'Georgia', serif; /* A more elegant font for the festive theme */
-          background-color: #145214; /* A rich, dark green background */
-          color: #FF0000; /* Bright red text color for the Christmas vibe */
-        }
-        h1, p, a {
-          color: #FFD700; /* Gold color for headings and links */
-        }
-        .logs {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          grid-gap: 1rem;
-        }
-        section {
-          border: 2px solid #FFD700; /* Gold border for log sections */
-          background-color: #145214;
-          padding: 1rem;
-          overflow: auto;
-          max-height: 500px;
-          display: flex;
-          flex-direction: column-reverse;
-        }
-        pre {
-          margin: 0;
-          color: #FFFFFF; /* White for preformatted text */
-          white-space: pre-wrap; /* Ensures logs do not overflow */
-        }
-        a {
-          color: #FFD700;
-          text-decoration: none; /* Optional: removes underlining of links */
-        }
-        a:hover {
-          color: #FF6347; /* A warm red color for hover states */
-        }
-      </style>
-      </head>
-      <body>
-        <h1>Stack not ready</h1>
-        <p>Waiting for the stack to be ready. This shouldn't take more than a few minutes.</p>
-        <p><strong>Build logs and core logs:</strong></p>
-        <div class="logs">
-        <section>
-        <pre>${readLogFile('/var/log/opencrvs.log')}</pre>
-        </section>
-        <section>
-        <pre>${readLogFile('/var/log/countryconfig.log')}</pre>
-      </section>
-        </div>
-        <p><strong>More logs:</strong></p>
-        <ul>
-          <li><a href="/var/log/opencrvs_stderr.log">/var/log/opencrvs_stderr.log</a></li>
-          <li><a href="/var/log/opencrvs_stdout.log">/var/log/opencrvs_stdout.log</a></li>
-          <li><a href="/var/log/countryconfig_stderr.log">/var/log/countryconfig_stderr.log</a></li>
-          <li><a href="/var/log/countryconfig_stdout.log">/var/log/countryconfig_stdout.log</a></li>
-          <li><a href="/var/log/elasticsearch_stderr.log">/var/log/elasticsearch_stderr.log</a></li>
-          <li><a href="/var/log/elasticsearch_stdout.log">/var/log/elasticsearch_stdout.log</a></li>
-          <li><a href="/var/log/hearth_stderr.log">/var/log/hearth_stderr.log</a></li>
-          <li><a href="/var/log/hearth_stdout.log">/var/log/hearth_stdout.log</a></li>
-          <li><a href="/var/log/influxdb_stderr.log">/var/log/influxdb_stderr.log</a></li>
-          <li><a href="/var/log/influxdb_stdout.log">/var/log/influxdb_stdout.log</a></li>
-          <li><a href="/var/log/minio_stderr.log">/var/log/minio_stderr.log</a></li>
-          <li><a href="/var/log/minio_stdout.log">/var/log/minio_stdout.log</a></li>
-          <li><a href="/var/log/mongodb_stderr.log">/var/log/mongodb_stderr.log</a></li>
-          <li><a href="/var/log/mongodb_stdout.log">/var/log/mongodb_stdout.log</a></li>
-          <li><a href="/var/log/openhim_stderr.log">/var/log/openhim_stderr.log</a></li>
-          <li><a href="/var/log/openhim_stdout.log">/var/log/openhim_stdout.log</a></li>
-          <li><a href="/var/log/proxy_stderr.log">/var/log/proxy_stderr.log</a></li>
-          <li><a href="/var/log/proxy_stdout.log">/var/log/proxy_stdout.log</a></li>
-          <li><a href="/var/log/redis_stderr.log">/var/log/redis_stderr.log</a></li>
-          <li><a href="/var/log/redis_stdout.log">/var/log/redis_stdout.log</a></li>
-        </ul>
-      </body>
-    `)
+    res.status(503).send(readFileSync('./index.html', 'utf8').replace('{{CORE_LOGS}}',
+      readLogFile('/var/log/opencrvs.log')
+    ).replace('{{COUNTRY_CONFIG_LOGS}}',
+      readLogFile('/var/log/countryconfig.log')
+    ))
   }
 })
 
