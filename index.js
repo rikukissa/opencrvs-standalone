@@ -6,6 +6,21 @@ const axios = require('axios');
 
 let stackReady = false;
 
+async function getClientConfig() {
+  const config = await axios.get('http://localhost:3040/login-config.js')
+  const window = {}
+  eval(config.data);
+  return window.config;
+}
+
+function readLogFile(filePath) {
+  try {
+    return readFileSync(filePath, 'utf8')
+  } catch (error) {
+    return `No log file ${filePath} found`
+  }
+}
+
 app.use('/var/log/:file', (req, res) => {
   res.send(readFileSync(`/var/log/${req.params.file}`, 'utf8'))
 })
@@ -32,12 +47,60 @@ app.use(async (req, res, next) => {
     <html>
       <head>
         <title>Stack not ready</title>
+        <meta http-equiv="refresh" content="5" >
+        <style>
+        body {
+          font-family: 'Georgia', serif; /* A more elegant font for the festive theme */
+          background-color: #145214; /* A rich, dark green background */
+          color: #FF0000; /* Bright red text color for the Christmas vibe */
+        }
+        h1, p, a {
+          color: #FFD700; /* Gold color for headings and links */
+        }
+        .logs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-gap: 1rem;
+        }
+        section {
+          border: 2px solid #FFD700; /* Gold border for log sections */
+          background-color: #145214;
+          padding: 1rem;
+          overflow: auto;
+          max-height: 500px;
+          display: flex;
+          flex-direction: column-reverse;
+        }
+        pre {
+          margin: 0;
+          color: #FFFFFF; /* White for preformatted text */
+          white-space: pre-wrap; /* Ensures logs do not overflow */
+        }
+        a {
+          color: #FFD700;
+          text-decoration: none; /* Optional: removes underlining of links */
+        }
+        a:hover {
+          color: #FF6347; /* A warm red color for hover states */
+        }
+      </style>
       </head>
       <body>
         <h1>Stack not ready</h1>
         <p>Waiting for the stack to be ready. This shouldn't take more than a few minutes.</p>
-        <p><strong>Check the logs for more details:</strong></p>
+        <p><strong>Build logs and core logs:</strong></p>
+        <div class="logs">
+        <section>
+        <pre>${readLogFile('/var/log/opencrvs.log')}</pre>
+        </section>
+        <section>
+        <pre>${readLogFile('/var/log/countryconfig.log')}</pre>
+      </section>
+        </div>
+        <p><strong>More logs:</strong></p>
         <ul>
+          <li><a href="/var/log/opencrvs_stderr.log">/var/log/opencrvs_stderr.log</a></li>
+          <li><a href="/var/log/opencrvs_stdout.log">/var/log/opencrvs_stdout.log</a></li>
           <li><a href="/var/log/countryconfig_stderr.log">/var/log/countryconfig_stderr.log</a></li>
           <li><a href="/var/log/countryconfig_stdout.log">/var/log/countryconfig_stdout.log</a></li>
           <li><a href="/var/log/elasticsearch_stderr.log">/var/log/elasticsearch_stderr.log</a></li>
@@ -50,8 +113,6 @@ app.use(async (req, res, next) => {
           <li><a href="/var/log/minio_stdout.log">/var/log/minio_stdout.log</a></li>
           <li><a href="/var/log/mongodb_stderr.log">/var/log/mongodb_stderr.log</a></li>
           <li><a href="/var/log/mongodb_stdout.log">/var/log/mongodb_stdout.log</a></li>
-          <li><a href="/var/log/opencrvs_stderr.log">/var/log/opencrvs_stderr.log</a></li>
-          <li><a href="/var/log/opencrvs_stdout.log">/var/log/opencrvs_stdout.log</a></li>
           <li><a href="/var/log/openhim_stderr.log">/var/log/openhim_stderr.log</a></li>
           <li><a href="/var/log/openhim_stdout.log">/var/log/openhim_stdout.log</a></li>
           <li><a href="/var/log/proxy_stderr.log">/var/log/proxy_stderr.log</a></li>
@@ -100,6 +161,16 @@ app.use(
   })
 )
 app.use(
+  '/auth',
+  createProxyMiddleware({
+    target: 'http://localhost:4040',
+    changeOrigin: true,
+    pathRewrite: {
+      '^/auth': '/'
+    }
+  })
+)
+app.use(
   '/gateway',
   createProxyMiddleware({
     target: 'http://localhost:7070',
@@ -145,44 +216,35 @@ app.use(
 )
 
 app.use(
-  '/client-config.js', (req, res) => {
+  '/client-config.js', async (req, res) => {
+    const config = await getClientConfig('http://localhost:3040/client-config.js')
+    const configWithProxyUrls = {
+      ...config,
+      API_GATEWAY_URL: `${req.protocol}://${req.headers.host}/gateway/`,
+      CONFIG_API_URL: `${req.protocol}://${req.headers.host}/config/`,
+      AUTH_URL: `${req.protocol}://${req.headers.host}/auth/`,
+      LOGIN_URL: `${req.protocol}://${req.headers.host}/login`,
+      COUNTRY_CONFIG_URL: `${req.protocol}://${req.headers.host}/countryconfig`,
+      MINIO_BUCKET: process.env.MINIO_BUCKET,
+    }
     res.setHeader('Content-Type', 'application/javascript')
-    res.send(`
-  window.config = {
-    API_GATEWAY_URL: 'https://${req.headers.host}/gateway/',
-    CONFIG_API_URL: 'https://${req.headers.host}/config/',
-    AUTH_URL: 'https://${req.headers.host}/gateway/auth/',
-    LOGIN_URL: 'https://${req.headers.host}/login',
-    MINIO_BUCKET: 'ocrvs',
-    COUNTRY_CONFIG_URL: 'https://${req.headers.host}/countryconfig',
-    COUNTRY: 'FAR',
-    AVAILABLE_LANGUAGES_SELECT: 'en:English,fr:Français',
-    LANGUAGES: 'en,fr',
-    SENTRY: '',
-    LOGROCKET: '',
-    LEADERBOARDS_DASHBOARD_URL: '',
-    REGISTRATIONS_DASHBOARD_URL: '',
-    STATISTICS_DASHBOARD_URL: ''
-  }
-      `)
+    res.send(`window.config = ${JSON.stringify(configWithProxyUrls, null, 2)}`)
   }
 )
 app.use(
-  '/login-config.js', (req, res) => {
+  '/login-config.js', async (req, res) => {
+    const config = await getClientConfig('http://localhost:3040/login-config.js')
+
+    const configWithProxyUrls = {
+      ...config,
+      CONFIG_API_URL: `${req.protocol}://${req.headers.host}/config/`,
+      AUTH_API_URL: `${req.protocol}://${req.headers.host}/auth/`,
+      CLIENT_APP_URL: `${req.protocol}://${req.headers.host}`,
+      COUNTRY_CONFIG_URL: `${req.protocol}://${req.headers.host}/countryconfig`,
+    }
+
     res.setHeader('Content-Type', 'application/javascript')
-    res.send(`
-  window.config = {
-    CONFIG_API_URL: 'https://${req.headers.host}/config/',
-    AUTH_API_URL: 'https://${req.headers.host}/gateway/auth/',
-    CLIENT_APP_URL: 'https://${req.headers.host}',
-    // Country code in uppercase ALPHA-3 format
-    COUNTRY: 'FAR',
-    LANGUAGES: 'en,fr',
-    AVAILABLE_LANGUAGES_SELECT: 'en:English,fr:Français',
-    COUNTRY_CONFIG_URL: 'https://${req.headers.host}/countryconfig',
-    SENTRY: '',
-    LOGROCKET: ''
-  }`)
+    res.send(`window.config = ${JSON.stringify(configWithProxyUrls, null, 2)}`)
   }
 )
 
