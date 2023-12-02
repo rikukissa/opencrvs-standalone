@@ -218,13 +218,16 @@ app.use(
 app.use(
   '/client-config.js', async (req, res) => {
     const config = await getClientConfig('http://localhost:3040/client-config.js')
+    const url = new URL(req.headers.referer)
+
     const configWithProxyUrls = {
       ...config,
-      API_GATEWAY_URL: `${req.protocol}://${req.headers.host}/gateway/`,
-      CONFIG_API_URL: `${req.protocol}://${req.headers.host}/config/`,
-      AUTH_URL: `${req.protocol}://${req.headers.host}/auth/`,
-      LOGIN_URL: `${req.protocol}://${req.headers.host}/login`,
-      COUNTRY_CONFIG_URL: `${req.protocol}://${req.headers.host}/countryconfig`,
+      API_GATEWAY_URL: `${url.protocol}//${req.headers.host}/gateway/`,
+      CONFIG_API_URL: `${url.protocol}//${req.headers.host}/config/`,
+      AUTH_URL: `${url.protocol}//${req.headers.host}/auth/`,
+      AUTH_API_URL: `${url.protocol}//${req.headers.host}/auth/`,
+      LOGIN_URL: `${url.protocol}//${req.headers.host}/login`,
+      COUNTRY_CONFIG_URL: `${url.protocol}//${req.headers.host}/countryconfig`,
       MINIO_BUCKET: process.env.MINIO_BUCKET,
     }
     res.setHeader('Content-Type', 'application/javascript')
@@ -234,13 +237,14 @@ app.use(
 app.use(
   '/login-config.js', async (req, res) => {
     const config = await getClientConfig('http://localhost:3040/login-config.js')
+    const url = new URL(req.headers.referer)
 
     const configWithProxyUrls = {
       ...config,
-      CONFIG_API_URL: `${req.protocol}://${req.headers.host}/config/`,
-      AUTH_API_URL: `${req.protocol}://${req.headers.host}/auth/`,
-      CLIENT_APP_URL: `${req.protocol}://${req.headers.host}`,
-      COUNTRY_CONFIG_URL: `${req.protocol}://${req.headers.host}/countryconfig`,
+      CONFIG_API_URL: `${url.protocol}//${req.headers.host}/config/`,
+      AUTH_API_URL: `${url.protocol}//${req.headers.host}/auth/`,
+      CLIENT_APP_URL: `${url.protocol}//${req.headers.host}`,
+      COUNTRY_CONFIG_URL: `${url.protocol}//${req.headers.host}/countryconfig`,
     }
 
     res.setHeader('Content-Type', 'application/javascript')
