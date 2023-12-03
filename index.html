@@ -38,6 +38,10 @@
         margin: 0;
         color: #7bff7b;
       }
+
+      .log-container {
+        overflow: scroll;
+      }
     </style>
   </head>
   <body>
@@ -47,14 +51,14 @@
       minutes.
     </p>
     <div class="logs">
-      <div>
+      <div class="log-container">
         <h3>Build & Core logs:</h3>
         <section>
           <pre>{{CORE_LOGS}}</pre>
         </section>
       </div>
 
-      <div>
+      <div class="log-container">
         <h3>Country config logs:</h3>
         <section>
           <pre>{{COUNTRY_CONFIG_LOGS}}</pre>
