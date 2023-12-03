@@ -12,7 +12,7 @@ export OPENHIM_MONGO_URL=$MONGODB_ADMIN_ADDRESS/$DATABASE_PREFIX-openhim
 if [ -n "$CORE_VERSION" ]; then
   cd /opencrvs-core
   echo "Checking out version $CORE_VERSION and reinstalling dependencies"
-  git fetch origin $CORE_VERSION:$CORE_VERSION --depth=1
+  git fetch origin $CORE_VERSION:$CORE_VERSION --depth=1 --update-head-ok
   git checkout $CORE_VERSION
 fi
 
